@@ -1,5 +1,5 @@
 lst_of_rooms = []
-lst_of_requests = [1, 2]
+lst_of_requests = []
 
 
 def customer_consent():
