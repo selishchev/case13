@@ -9,7 +9,7 @@ for line in v:
     line = line.split(' ')
     fio_demo = [line[1], line[2], line[3]]
     fio = ' '.join(fio_demo)
-    lst_of_requests.append(Request(line[0], fio, line[4], line[5], line[6], line[7]))
+    lst_of_requests.append(Request(line[0], fio, line[4], line[5], line[6], line[7].replace('\n', '')))
 booking.close()
 
 for i in lst_of_requests:
@@ -19,11 +19,12 @@ fund = open('fund.txt', 'r', encoding='utf-8')
 m = fund.readlines()
 for line in m:
     line = line.split(' ')
-    lst_of_rooms.append(Room(line[0], line[1], line[2], line[3]))
+    lst_of_rooms.append(Room(line[0], line[1], line[2], line[3].replace('\n', '')))
 fund.close()
 
 for j in lst_of_rooms:
     print(j)
+    print(j.count_price())
 
 def customer_consent():
     pass

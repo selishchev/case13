@@ -20,6 +20,10 @@ class Room:
     def __repr__(self):
         return self.__str__()
 
+    def count_price(self):
+        price2 = room[self.type_of_room] * coefs[self.comfort_level]
+        return int(price2)
+
 
 class Request:
 
@@ -42,3 +46,5 @@ class Request:
 
     def __repr__(self):
         return self.__str__()
+
+
