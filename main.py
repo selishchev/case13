@@ -4,43 +4,6 @@ import operator
 import datetime
 
 
-def statistic(curr_date, hotel):
-    full_rooms = 0
-    dt = datetime.datetime.strptime(curr_date, "%d.%m.%Y").date()
-    for el in hotel:
-        if dt in el:
-            full_rooms += 1
-    return full_rooms
-
-
-def statistic_one(r):
-    one1 = 0
-    if 'Тип номера: одноместный' in str(r):
-            one1 += 1
-    return one1
-
-
-def statistic_two(r):
-    two1 = 0
-    if 'Тип номера: двухместный' in str(r):
-            two1 += 1
-    return two1
-
-
-def statistic_hlx(r):
-    hlx1 = 0
-    if 'Тип номера: полулюкс' in str(r):
-            hlx1 += 1
-    return hlx1
-
-
-def statistic_lx(r):
-    lx = 0
-    if 'Тип номера: люкс' in str(r):
-            lx += 1
-    return lx
-
-
 def add_date(arrival_date, days, k):
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     rmn = 0
@@ -97,6 +60,61 @@ def get_free_room(i):
     return num_room
 
 
+def get_rooms_stat(arrival_date):
+    stat = ""
+    cnt_1 = 0
+    cnt_2 = 0
+    cnt_half_luxe = 0
+    cnt_luxe = 0
+    cnt_all_1 = 0
+    cnt_all_2 = 0
+    cnt_all_half_luxe = 0
+    cnt_all_luxe = 0
+    dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
+    for room in lst_of_rooms:
+        rmn = 0
+        if str(room.type_of_room) == "одноместный":
+            cnt_all_1 += 1
+        else:
+            if str(room.type_of_room) == "двухместный":
+                cnt_all_2 += 1
+            else:
+                if str(room.type_of_room) == "полулюкс":
+                    cnt_all_half_luxe += 1
+                else:
+                    if str(room.type_of_room) == "люкс":
+                        cnt_all_luxe += 1
+        for rm in hotel:
+            if (rmn + 1) == int(room.room_number):
+                    for dd in rm:
+                        if dt == dd:
+                            if str(room.type_of_room) == "одноместный":
+                                cnt_1 += 1
+                            else:
+                                if str(room.type_of_room) == "двухместный":
+                                    cnt_2 += 1
+                                else:
+                                    if str(room.type_of_room) == "полулюкс":
+                                        cnt_half_luxe += 1
+                                    else:
+                                        if str(room.type_of_room) == "люкс":
+                                            cnt_luxe += 1
+
+            rmn += 1
+    cnt_room_all = cnt_all_1 + cnt_all_2 + cnt_all_half_luxe + cnt_all_luxe
+    cnt_room_busy = cnt_1 + cnt_2 + cnt_half_luxe + cnt_luxe
+    percent = round(cnt_room_busy * 100 / cnt_room_all, 2)
+    stat += "Количество занятых номеров: " + str(cnt_room_busy) + "\n"
+    stat += "Количество свободных номеров: " + str(cnt_room_all - cnt_room_busy) + "\n"
+    stat += "Процент загруженности гостиницы: " + str(percent) + "%\n"
+    stat += "Занятость по категориям:" + "\n"
+    stat += "Одноместных: " + str(cnt_1) + " из " + str(cnt_all_1) + "\n"
+    stat += "Двухместных: " + str(cnt_2) + " из " + str(cnt_all_2) + "\n"
+    stat += "Полулюкс: " + str(cnt_half_luxe) + " из " + str(cnt_all_half_luxe) + "\n"
+    stat += "Люкс: " + str(cnt_luxe) + " из " + str(cnt_all_luxe) + "\n"
+    return stat
+
+
 lst_empty_rooms = []
 lst_of_rooms = []
 lst_of_discount_rooms = []
@@ -121,7 +139,6 @@ for line in m:
     line = line.split(' ')
     lst_of_rooms.append(Room(line[0], line[1], line[2], line[3].replace('\n', '')))
 fund.close()
-
 
 hotel = []
 for j in lst_of_rooms:
@@ -150,10 +167,6 @@ for j in range(len(all_dates)):
         print("Поступила заявка на бронирование: ")
         print(i)
         r = setroom(i, hotel)
-        st1 = statistic_one(r)
-        st2 = statistic_two(r)
-        st3 = statistic_hlx(r)
-        st4 = statistic_lx(r)
         if r is None:
             r2 = get_free_room(i)
             if r2 is None:
@@ -177,7 +190,6 @@ for j in range(len(all_dates)):
                     print('Клиент согласен. Номер забронирован\n')
                 else:
                     print('Клиент отказался от варианта\n')
-
         else:
             print("Найден:")
             print(r)
@@ -193,9 +205,6 @@ for j in range(len(all_dates)):
                 print('Тип питания: без питания')
             print('Стоимость ' + str(cost) + ' руб./сутки\n')
             print('Клиент согласен. Номер забронирован\n')
-
-        c = statistic(i.date_of_booking, hotel)
-
-    print("+++++++++++++++++++++++++++++++++++++Итог за " + str(i.date_of_booking))
-    print('Забронировано номеров: ' + str(c))
-    print()
+    print("*********************** Итог за " + str(i.date_of_booking) + " **************************")
+    print(get_rooms_stat(i.date_of_booking))
+    print("*********************************************************************")
