@@ -3,6 +3,11 @@ import random
 import operator
 import datetime
 
+class Calc:
+    def __init__(self, date, money):
+        self.date = date
+        self.money = money
+
 def add_date(arrival_date, days, k):
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     rmn = 0
@@ -107,8 +112,23 @@ def get_rooms_stat(arrival_date):
     stat += "Двухместных: " + str(cnt_2) + " из " + str(cnt_all_2) + "\n"
     stat += "Полулюкс: " + str(cnt_half_luxe) + " из " + str(cnt_all_half_luxe) + "\n"
     stat += "Люкс: " + str(cnt_luxe) + " из " + str(cnt_all_luxe) + "\n"
+
+    dohod = 0
+    for i in all_sum_sorted:
+        if i.date == arrival_date:
+            dohod = dohod + int(i.money)
+    stat += "Доход: " + str(dohod) + "\n"
+
+    lost = 0
+    for i in lost_sum_sorted:
+        if i.date == arrival_date:
+            lost = lost + int(i.money)
+    stat += "Упущенный доход: " + str(lost) + "\n"
+
     return stat
 
+all_sum = []
+lost_sum = []
 lst_empty_rooms = []
 lst_of_rooms = []
 lst_of_discount_rooms = []
@@ -166,6 +186,7 @@ for j in range(len(all_dates)):
         if r is None:
             r2 = get_free_room(i)
             if r2 is None:
+                lost_sum.append(Calc(i.arrival_date, i.money))
                 print("Предложений по данному запросу нет. В бронировании отказано.\n")
             else:
                 print("Подобран номер со скидкой:")
@@ -181,10 +202,12 @@ for j in range(len(all_dates)):
                 else:
                     print('Тип питания: без питания')
                 print('Стоимость ' + str(cost) + ' руб./сутки\n')
+                all_sum.append(Calc(i.arrival_date, cost))
                 random_value = random.randint(1, 100)
                 if random_value > 25:
                     print('Клиент согласен. Номер забронирован\n')
                 else:
+                    lost_sum.append(Calc(i.arrival_date, i.money))
                     print('Клиент отказался от варианта\n')
         else:
             print("Найден:")
@@ -200,7 +223,17 @@ for j in range(len(all_dates)):
             else:
                 print('Тип питания: без питания')
             print('Стоимость ' + str(cost) + ' руб./сутки\n')
+            all_sum.append(Calc(i.arrival_date, cost))
             print('Клиент согласен. Номер забронирован\n')
+    all_sum_sorted = sorted(all_sum, key=operator.attrgetter('date'))
+    lost_sum_sorted = sorted(lost_sum, key=operator.attrgetter('date'))
+
     print("*********************** Итог за " + str(i.date_of_booking) + " **************************")
     print(get_rooms_stat(i.date_of_booking))
     print("*********************************************************************")
+
+
+
+
+
+
