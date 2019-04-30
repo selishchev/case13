@@ -59,3 +59,9 @@ class Request:
 
     def get_money(self):
         return int(self.money)
+
+
+class Calc:
+    def __init__(self, date, money):
+        self.date = date
+        self.money = money
