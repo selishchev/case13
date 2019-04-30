@@ -3,6 +3,40 @@ import random
 import operator
 import datetime
 
+def statistic(curr_date, hotel):
+    full_rooms = 0
+    dt = datetime.datetime.strptime(curr_date, "%d.%m.%Y").date()
+    for el in hotel:
+        if dt in el:
+            full_rooms += 1
+    return full_rooms
+
+
+def statistic_one(r):
+    one1 = 0
+    if 'Тип номера: одноместный' in str(r):
+            one1 += 1
+    return one1
+
+def statistic_two(r):
+    two1 = 0
+    if 'Тип номера: двухместный' in str(r):
+            two1 += 1
+    return two1
+
+def statistic_hlx(r):
+    hlx1 = 0
+    if 'Тип номера: полулюкс' in str(r):
+            hlx1 += 1
+    return hlx1
+
+
+def statistic_lx(r):
+    lx = 0
+    if 'Тип номера: люкс' in str(r):
+            lx += 1
+    return lx
+
 def add_date(arrival_date, days, k):
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     rmn = 0
@@ -11,8 +45,6 @@ def add_date(arrival_date, days, k):
             for j in range(int(days)):
                 newdt = dt + datetime.timedelta(days=j)
                 rm.append(newdt)
-                if dt in rm:
-                    lst_of_full_rooms.append(k)
             break
         rmn += 1
 
@@ -33,6 +65,7 @@ def valid_date(arrival_date, days, k):
         rmn += 1
     return is_valid
 
+
 def setroom(i, hotel):
     num_room = None
     kc = 0
@@ -45,6 +78,7 @@ def setroom(i, hotel):
                     break
         kc += 1
     return num_room
+
 
 def get_free_room(i):
     num_room = None
@@ -112,6 +146,10 @@ for j in range(len(all_dates)):
         print("Поступила заявка на бронирование: ")
         print(i)
         r = setroom(i, hotel)
+        st1 = statistic_one(r)
+        st2 = statistic_two(r)
+        st3 = statistic_hlx(r)
+        st4 = statistic_lx(r)
         if r is None:
             r2 = get_free_room(i)
             if r2 is None:
@@ -152,7 +190,10 @@ for j in range(len(all_dates)):
             print('Стоимость ' + str(cost) + ' руб./сутки\n')
             print('Клиент согласен. Номер забронирован\n')
 
+
+            c = statistic(i.date_of_booking,hotel)
+
     print("+++++++++++++++++++++++++++++++++++++Итог за " + str(i.date_of_booking))
-    print(len(lst_of_full_rooms))
-lst_of_full_rooms = []
+    print(c)
+    print()
 
