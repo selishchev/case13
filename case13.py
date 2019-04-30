@@ -14,7 +14,7 @@ class Room:
         s = 'Номер комнаты: ' + str(self.room_number) + '\n'
         s += 'Тип номера: ' + str(self.type_of_room) + '\n'
         s += 'Максимальная вместимость (кол-во человек): ' + str(self.capacity) + '\n'
-        s += 'Степень комфортности: ' + str(self.comfort_level) + '\n'
+        s += 'Степень комфортности: ' + str(self.comfort_level)
         return s
 
     def __repr__(self):
@@ -26,6 +26,10 @@ class Room:
 
     def get_capacity(self):
         return self.capacity
+
+    def count_discount_price(self):
+        discount_price = room[self.type_of_room] * coefs[self.comfort_level] * 0.7
+        return int(discount_price)
 
 
 class Request:
@@ -55,5 +59,3 @@ class Request:
 
     def get_money(self):
         return int(self.money)
-
-
