@@ -4,18 +4,18 @@ import datetime
 import operator
 import datetime
 
-def add_date(arrival_date, days, k):
+def add_date(arrival_date, days, k): # функция преобразует дату заселения чела в формат даты.
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     rmn = 0
     for rm in hotel:
-        if (rmn + 1) == int(k.room_number):
-            for j in range(int(days)):
+        if (rmn + 1) == int(k.room_number): # если индекс+1 подсписка совпадает с номером комнаты, то:
+            for j in range(int(days)): # каждый день из прожитых в гостинице добавляем в подсписок. Потом по этим подспискам определим занятые даты.
                 newdt = dt + datetime.timedelta(days=j)
-                rm.append(newdt)
+                rm.append(newdt) # 
             break
         rmn += 1
 
-def valid_date(arrival_date, days, k):
+def valid_date(arrival_date, days, k): # определяем свободные даты в гостинице 
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     is_valid = True
     rmn = 0
@@ -24,7 +24,7 @@ def valid_date(arrival_date, days, k):
             for j in range(int(days)):
                 newdt = dt + datetime.timedelta(days=j)
                 for dd in rm:
-                    if newdt == dd:
+                    if newdt == dd: # если дата заселения нового постояльца совпадает с уже занятой, то ищем другую комнату.
                         is_valid = False
                         break
         if is_valid == False:
@@ -32,15 +32,15 @@ def valid_date(arrival_date, days, k):
         rmn += 1
     return is_valid
 
-def setroom(i, hotel):
-    num_room = None
+def setroom(i, hotel): # функция подбирает свободный номер
+    num_room = None # изначально номер не подобран. 
     kc = 0
     for k in lst_of_rooms:
-        if k.capacity == i.amount_of_people:
-            if valid_date(i.arrival_date, i.days, k):
-                if int(i.money) >= k.count_price():
-                    num_room = k
-                    add_date(i.arrival_date, i.days, k)
+        if k.capacity == i.amount_of_people: #если вместимость подходит, делаем:
+            if valid_date(i.arrival_date, i.days, k): # если дата прибытия человека не накладывается на занятые даты, продолжаем:
+                if int(i.money) >= k.count_price(): # если подходит по бюджету:
+                    num_room = k назначаем номер комнаты.
+                    add_date(i.arrival_date, i.days, k) #добавляем даты проживания следующего чела в список занятых дат.
                     break
         kc += 1
     return num_room
@@ -83,10 +83,10 @@ for line in m:
 fund.close()
 
 
-hotel = []
+hotel = [] # создаём пока пустой список списков. Каждый подписок - отдельная комната.
 for j in lst_of_rooms:
     for i in range(len(lst_of_rooms)):
-        room = []
+        room = [] # тут будем хранить данные о датах, когда конкретная комната забронирована.
         hotel.append(room)
 
 #Ищем первую дату бронирования
@@ -104,7 +104,7 @@ for i in sort_lst_of_requests:
         dates = []
         dates.append(i)
         dt = i.date_of_booking
-all_dates.append(dates)
+all_dates.append(dates)# список, в котором хранятся заявки, поступившие в конкретный день.
 
 for j in range(len(all_dates)):
     for i in all_dates[j]:
