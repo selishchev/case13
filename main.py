@@ -1,21 +1,22 @@
 from case13 import *
 import random
-import datetime
 import operator
 import datetime
 
-def add_date(arrival_date, days, k): # функция преобразует дату заселения чела в формат даты и добавляет ее в подсписок для конкретной комнаты.
+def add_date(arrival_date, days, k):
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     rmn = 0
     for rm in hotel:
-        if (rmn + 1) == int(k.room_number): # если индекс+1 подсписка совпадает с номером комнаты, то:
-            for j in range(int(days)): # каждый день из прожитых в гостинице добавляем в подсписок. Потом по этим подспискам определим в какую дату какая комната занята.
+        if (rmn + 1) == int(k.room_number):
+            for j in range(int(days)):
                 newdt = dt + datetime.timedelta(days=j)
                 rm.append(newdt)
+                if dt in rm:
+                    lst_of_full_rooms.append(k)
             break
         rmn += 1
 
-def valid_date(arrival_date, days, k): # определяем свободные даты в гостинице 
+def valid_date(arrival_date, days, k):
     dt = datetime.datetime.strptime(arrival_date, "%d.%m.%Y").date()
     is_valid = True
     rmn = 0
@@ -24,7 +25,7 @@ def valid_date(arrival_date, days, k): # определяем свободные
             for j in range(int(days)):
                 newdt = dt + datetime.timedelta(days=j)
                 for dd in rm:
-                    if newdt == dd: # если дата заселения нового постояльца совпадает с уже занятой, то ищем другую комнату.
+                    if newdt == dd:
                         is_valid = False
                         break
         if is_valid == False:
@@ -32,30 +33,31 @@ def valid_date(arrival_date, days, k): # определяем свободные
         rmn += 1
     return is_valid
 
-def setroom(i, hotel): # функция заселяет людей
-    num_room = None # изначально номер не подобран. 
+def setroom(i, hotel):
+    num_room = None
     kc = 0
     for k in lst_of_rooms:
-        if k.capacity == i.amount_of_people: #если вместимость подходит, делаем:
-            if valid_date(i.arrival_date, i.days, k): # если дата прибытия человека не накладывается на занятые даты, продолжаем:
-                if int(i.money) >= k.count_price(): # если подходит по бюджету:
-                    num_room = k назначаем номер комнаты.
-                    add_date(i.arrival_date, i.days, k) #добавляем даты проживания чела в список занятых дат.
+        if k.capacity == i.amount_of_people:
+            if valid_date(i.arrival_date, i.days, k):
+                if int(i.money) >= k.count_price():
+                    num_room = k
+                    add_date(i.arrival_date, i.days, k)
                     break
         kc += 1
     return num_room
 
-def get_free_room(i): # для тех, кому обычных комнат не хватило, ищем свободные, но дешевле.
+def get_free_room(i):
     num_room = None
     for k in lst_of_rooms:
         if k.capacity >= i.amount_of_people:
             if valid_date(i.arrival_date, i.days, k):
-                if int(i.money) >= k.count_discount_price(): # если хватает на комнату со скидкой
+                if int(i.money) >= k.count_discount_price():
                     num_room = k
-                    add_date(i.arrival_date, i.days, k)# добавляем даты проживания человека в подсписок с информацией об этой комнате.
+                    add_date(i.arrival_date, i.days, k)
                     break
     return num_room
 
+lst_empty_rooms = []
 lst_of_rooms = []
 lst_of_discount_rooms = []
 lst_of_full_rooms = []
@@ -73,8 +75,7 @@ for line in v:
 booking.close()
 
 # Сортируем по дате бронирования, дате заселения, количеству человек и бюджету.
-sort_lst_of_requests = sorted(lst_of_requests, key=operator.attrgetter('date_of_booking', 'arrival_date',
-                                                                       'amount_of_people', 'money'))
+sort_lst_of_requests = sorted(lst_of_requests, key=operator.attrgetter('date_of_booking'))
 fund = open('fund.txt', 'r', encoding='utf-8')
 m = fund.readlines()
 for line in m:
@@ -83,10 +84,10 @@ for line in m:
 fund.close()
 
 
-hotel = [] # создаём пока пустой список списков. Каждый подписок - отдельная комната.
+hotel = []
 for j in lst_of_rooms:
     for i in range(len(lst_of_rooms)):
-        room = [] # тут будем хранить данные о датах, на которые конкретная комната забронирована.
+        room = []
         hotel.append(room)
 
 #Ищем первую дату бронирования
@@ -104,21 +105,54 @@ for i in sort_lst_of_requests:
         dates = []
         dates.append(i)
         dt = i.date_of_booking
-all_dates.append(dates)# список, в котором хранятся заявки, поступившие в конкретный день. По дням разбиваем для удобства обработки заявок.
+all_dates.append(dates)
 
 for j in range(len(all_dates)):
-    for i in all_dates[j]: # для всех заявок в конкретный день:
+    for i in all_dates[j]:
         print("Поступила заявка на бронирование: ")
         print(i)
-        r = setroom(i, hotel) # подобран такой-то номер 
-        if (r  == None): # если сразу расселить не удалось, то:
-            r2 = get_free_room(i) # подбираем со скидкой
-            if r2 == None:
-                print("Подходящий номер найти не удалось!")
+        r = setroom(i, hotel)
+        if r is None:
+            r2 = get_free_room(i)
+            if r2 is None:
+                print("Предложений по данному запросу нет. В бронировании отказано.\n")
             else:
                 print("Подобран номер со скидкой:")
-                print(r)
+                print(r2)
+                cost = r2.count_discount_price()
+                difference = i.get_money() - cost
+                if difference > 999:
+                    cost += meal['полупансион']
+                    print('Тип питания: полупансион')
+                elif difference > 279:
+                    cost += meal['завтрак']
+                    print('Тип питания: завтрак')
+                else:
+                    print('Тип питания: без питания')
+                print('Стоимость ' + str(cost) + ' руб./сутки\n')
+                random_value = random.randint(1, 100)
+                if random_value > 25:
+                    print('Клиент согласен. Номер забронирован\n')
+                else:
+                    print('Клиент отказался от варианта\n')
+
         else:
-            print("Номер забронирован:")
+            print("Найден:")
             print(r)
+            cost = r.count_price()
+            difference = int(i.get_money()) - cost
+            if difference > 999:
+                cost += meal['полупансион']
+                print('Тип питания: полупансион')
+            elif difference > 279:
+                cost += meal['завтрак']
+                print('Тип питания: завтрак')
+            else:
+                print('Тип питания: без питания')
+            print('Стоимость ' + str(cost) + ' руб./сутки\n')
+            print('Клиент согласен. Номер забронирован\n')
+
+    print("+++++++++++++++++++++++++++++++++++++Итог за " + str(i.date_of_booking))
+    print(len(lst_of_full_rooms))
+lst_of_full_rooms = []
 
